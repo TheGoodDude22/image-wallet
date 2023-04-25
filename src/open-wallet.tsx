@@ -1,13 +1,14 @@
 import { openExtensionPreferences, ActionPanel, Action, Grid, Icon } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 
-import { ReactNode } from "react";
+import { useState, ReactNode } from "react";
 
 import { walletPath, fetchFiles } from "./utils";
 import { Card, Pocket } from "./types";
 
 export default function Command() {
-	const { isLoading, data } = usePromise(loadGridComponents);
+	const [pocket, setPocket] = useState<string>();
+	const { isLoading, data } = usePromise(loadGridComponents, [pocket]);
 
 	return (
 		<Grid
@@ -16,7 +17,16 @@ export default function Command() {
 			inset={Grid.Inset.Large}
 			navigationTitle="Image Wallet"
 			searchBarPlaceholder="Search Cards..."
-			searchBarAccessory={data?.dropdownNodes}
+			searchBarAccessory={
+				<Grid.Dropdown
+					tooltip="Select Pocket"
+					storeValue
+					onChange={(newValue) => setPocket(newValue)}
+					defaultValue="All Cards"
+				>
+					{ data?.dropdownNodes }
+				</Grid.Dropdown>
+			}
 			actions={
 				<ActionPanel>
 					{ loadEditActionNodes() }
@@ -28,40 +38,49 @@ export default function Command() {
 	);
 }
 
-async function loadGridComponents() { return(
+async function loadGridComponents(sortedPocket?:string) { return(
 	fetchFiles(walletPath).then(pockets => {
 		const dropdownNodes = loadGridDropdownNodes(pockets)
 		const pocketNodes:ReactNode[] = []
-		
-		pockets.forEach((pocket) => {
-			pocketNodes.push(loadPocketNodes(pocket));
-		})
+
+		if (sortedPocket) {
+			pockets.forEach(pocket => {
+				if (pocket.name == sortedPocket) {
+					pocketNodes.push(loadPocketNodes(pocket));
+				}
+			})
+		} else {
+			pockets.forEach((pocket) => {
+				pocketNodes.push(loadPocketNodes(pocket));
+			})
+		}
 
 		return { pocketNodes, dropdownNodes }
 	})
 )}
 
-function loadGridDropdownNodes(pockets: Pocket[]) { console.log(pockets); return (
-	<Grid.Dropdown tooltip="Pocket">
-		<Grid.Dropdown.Item
-			title="All Cards"
-			value="All Cards"
-		/>
-		<Grid.Dropdown.Section title="Pockets">
-			{pockets.filter(pocket => (pocket.name))
-				.map(pocket => (
-					<Grid.Dropdown.Item
-						title={pocket.name || "Unsorted"}
-						value={pocket.name || "Unsorted"}
-					/>
-				))
-			}
-		</Grid.Dropdown.Section>
-	</Grid.Dropdown>
-)}
+function loadGridDropdownNodes(pockets: Pocket[]) { return ([
+	<Grid.Dropdown.Item
+		title="All Cards"
+		value=""
+	/>,
+	<Grid.Dropdown.Section title="Pockets">
+		{pockets.filter(pocket => (pocket.name))
+			.map(pocket => (
+				<Grid.Dropdown.Item
+					title={pocket.name || "Unsorted"}
+					value={pocket.name || "Unsorted"}
+				/>
+			))
+		}
+	</Grid.Dropdown.Section>
+])}
 
 function loadPocketNodes(pocket:Pocket) { return(
-	<Grid.Section title={pocket.name} key={pocket.name || "unsorted"}>
+	<Grid.Section
+		title={pocket.name || "Unsorted"}
+		key={pocket.name || "unsorted"}
+	>
 		{pocket.cards.map(card => (
 			<Grid.Item
 				key={card.path}
