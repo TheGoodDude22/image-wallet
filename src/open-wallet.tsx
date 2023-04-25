@@ -28,20 +28,18 @@ export default function Command() {
 	);
 }
 
-async function loadGridComponents() {
-	const pocketNodes:ReactNode[] = []
-	const dropdownNodes: ReactNode[] = []
-
+async function loadGridComponents() { return(
 	fetchFiles(walletPath).then(pockets => {
-		dropdownNodes.push(loadGridDropdownNodes(pockets))
-
+		const dropdownNodes = loadGridDropdownNodes(pockets)
+		const pocketNodes:ReactNode[] = []
+		
 		pockets.forEach((pocket) => {
 			pocketNodes.push(loadPocketNodes(pocket));
 		})
-	})
 
-	return { pocketNodes, dropdownNodes }
-}
+		return { pocketNodes, dropdownNodes }
+	})
+)}
 
 function loadGridDropdownNodes(pockets: Pocket[]) { console.log(pockets); return (
 	<Grid.Dropdown tooltip="Pocket">
