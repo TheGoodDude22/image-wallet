@@ -23,6 +23,7 @@ export default function Command() {
 					storeValue
 					onChange={(newValue) => setPocket(newValue)}
 					defaultValue="All Cards"
+					key="Dropdown"
 				>
 					{ data?.dropdownNodes }
 				</Grid.Dropdown>
@@ -63,13 +64,15 @@ function loadGridDropdownNodes(pockets: Pocket[]) { return ([
 	<Grid.Dropdown.Item
 		title="All Cards"
 		value=""
+		key=""
 	/>,
-	<Grid.Dropdown.Section title="Pockets">
+	<Grid.Dropdown.Section title="Pockets" key="Section">
 		{pockets.filter(pocket => (pocket.name))
 			.map(pocket => (
 				<Grid.Dropdown.Item
 					title={pocket.name || "Unsorted"}
 					value={pocket.name || "Unsorted"}
+					key={pocket.name || "Unsorted"}
 				/>
 			))
 		}
