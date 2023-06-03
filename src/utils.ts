@@ -20,25 +20,25 @@ function getWalletPath() {
 export async function fetchFiles(dir: string): Promise<Pocket[]> {
   const pocketArr: Pocket[] = [];
 
-  loadPocketCards(dir).then((cards) => {
+  await loadPocketCards(dir).then((cards) => {
     if (cards.length > 0) pocketArr.push({ cards: cards });
   });
 
   const items = readdirSync(walletPath);
-  items.forEach((item) => {
+
+  for (const item of items) {
     const filePath = `${dir}/${item}`;
     const fileStats = lstatSync(filePath);
     const fileExt = extname(filePath);
     const fileName = basename(filePath, fileExt);
 
-    if (!fileStats.isDirectory()) return;
-    if (fileName.startsWith(".")) return;
+    if (!fileStats.isDirectory()) continue;
+    if (fileName.startsWith(".")) continue;
 
-    loadPocketCards(`${dir}/${item}`).then((cards) => {
+    await loadPocketCards(`${dir}/${item}`).then((cards) => {
       pocketArr.push({ name: item, cards: cards });
     });
-  });
-
+  };
   return pocketArr;
 }
 
@@ -47,7 +47,7 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
 
   const items = readdirSync(dir);
 
-  for (const item of items) {
+  for await (const item of items) {
     const filePath = `${dir}/${item}`;
     const fileStats = lstatSync(filePath);
     const fileExt = extname(filePath);
@@ -58,12 +58,8 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
   
     const previewDir = `${environment.supportPath}/.previews`;
 
-    if (!existsSync(previewDir)) {
-      mkdirSync(previewDir);
-    }
-
+    if (!existsSync(previewDir)) { mkdirSync(previewDir); }
     const previewPath = await generateVideoPreview(filePath, `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`);
-  
     cardArr.push({ name: fileName, path: filePath, preview: previewPath });
   }
 
@@ -163,3 +159,5 @@ async function generateVideoPreview(inputPath: string, outputPath: string): Prom
 
   return previewPath;
 }
+
+

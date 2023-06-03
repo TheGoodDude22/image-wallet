@@ -34,6 +34,8 @@ export default function Command() {
   );
 
   async function loadGridComponents(sortedPocket?: string) {
+    // console.log(await fetchFiles(walletPath))
+
     return fetchFiles(walletPath).then((pockets) => {
       const dropdownNodes = loadGridDropdownNodes(pockets);
       const pocketNodes: ReactNode[] = [];
