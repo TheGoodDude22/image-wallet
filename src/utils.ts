@@ -35,14 +35,6 @@ export async function fetchFiles(dir: string): Promise<Pocket[]> {
     if (fileName.startsWith(".")) return;
 
     loadPocketCards(`${dir}/${item}`).then((cards) => {
-      // const vids = cards.filter(item => {
-      //   return item.preview
-      // })
-
-      // console.log(vids)
-
-      if (item == "Videos") { console.log(cards) }
-
       pocketArr.push({ name: item, cards: cards });
     });
   });
@@ -54,36 +46,36 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
   const cardArr: Card[] = [];
 
   const items = readdirSync(dir);
-  items.forEach(async (item) => {
+
+  items.forEach(async item => {
     const filePath = `${dir}/${item}`;
     const fileStats = lstatSync(filePath);
     const fileExt = extname(filePath);
     const fileName = basename(filePath, fileExt);
-
+  
     if (fileStats.isDirectory()) return;
     if (fileName.startsWith(".")) return;
-
+  
     const videoExts = [".mov", ".mp4"];
-
+  
     if (videoExts.includes(fileExt)) {
+      console.log(fileName)
       const previewDir = `${environment.supportPath}/.previews`;
-
+  
       if (!existsSync(previewDir)) {
         mkdirSync(previewDir);
       }
-
+  
       const previewPath = await generateVideoPreview(
         filePath,
         `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`
       );
-
-      // console.log(cardArr)
-
-      return cardArr.push({ name: fileName, path: filePath, preview: previewPath });
+  
+      cardArr.push({ name: fileName, path: filePath, preview: previewPath });
+    } else {
+      cardArr.push({ name: fileName, path: filePath });
     }
-
-    return cardArr.push({ name: fileName, path: filePath });
-  });
+  })
 
   return cardArr;
 }
