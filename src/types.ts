@@ -6,6 +6,7 @@ export type Pocket = {
 export type Card = {
   name: string;
   path: string;
+  preview?: string;
 };
 
 export interface Preferences {
