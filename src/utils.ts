@@ -26,19 +26,18 @@ export async function fetchFiles(dir: string): Promise<Pocket[]> {
 
   const items = readdirSync(walletPath);
 
-  for (const item of items) {
+  await Promise.all(items.map(async (item) => {
     const filePath = `${dir}/${item}`;
     const fileStats = lstatSync(filePath);
     const fileExt = extname(filePath);
     const fileName = basename(filePath, fileExt);
 
-    if (!fileStats.isDirectory()) continue;
-    if (fileName.startsWith(".")) continue;
+    if (!fileStats.isDirectory()) return;
+    if (fileName.startsWith(".")) return;
 
-    await loadPocketCards(`${dir}/${item}`).then((cards) => {
-      pocketArr.push({ name: item, cards: cards });
-    });
-  };
+    const cards = await loadPocketCards(`${dir}/${item}`)
+    pocketArr.push({ name: item, cards: cards });
+  }));
   return pocketArr;
 }
 
@@ -47,21 +46,22 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
 
   const items = readdirSync(dir);
 
-  for await (const item of items) {
+  await Promise.all(items.map(async (item) => {
     const filePath = `${dir}/${item}`;
     const fileStats = lstatSync(filePath);
     const fileExt = extname(filePath);
     const fileName = basename(filePath, fileExt);
-
-    if (fileStats.isDirectory()) continue;
-    if (fileName.startsWith(".")) continue;
+  
+    if (fileStats.isDirectory()) return;
+    if (fileName.startsWith(".")) return;
   
     const previewDir = `${environment.supportPath}/.previews`;
-
+  
     if (!existsSync(previewDir)) { mkdirSync(previewDir); }
-    const previewPath = await generateVideoPreview(filePath, `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`);
+    const intendedPreviewPath = `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`
+    const previewPath = await generateVideoPreview(filePath, intendedPreviewPath);
     cardArr.push({ name: fileName, path: filePath, preview: previewPath });
-  }
+  }))
 
   // items.forEach(async item => {
   //   const filePath = `${dir}/${item}`;
