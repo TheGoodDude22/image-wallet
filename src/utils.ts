@@ -47,35 +47,55 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
 
   const items = readdirSync(dir);
 
-  items.forEach(async item => {
+  for (const item of items) {
     const filePath = `${dir}/${item}`;
     const fileStats = lstatSync(filePath);
     const fileExt = extname(filePath);
     const fileName = basename(filePath, fileExt);
+
+    if (fileStats.isDirectory()) continue;
+    if (fileName.startsWith(".")) continue;
   
-    if (fileStats.isDirectory()) return;
-    if (fileName.startsWith(".")) return;
-  
-    const videoExts = [".mov", ".mp4"];
-  
-    if (videoExts.includes(fileExt)) {
-      console.log(fileName)
-      const previewDir = `${environment.supportPath}/.previews`;
-  
-      if (!existsSync(previewDir)) {
-        mkdirSync(previewDir);
-      }
-  
-      const previewPath = await generateVideoPreview(
-        filePath,
-        `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`
-      );
-  
-      cardArr.push({ name: fileName, path: filePath, preview: previewPath });
-    } else {
-      cardArr.push({ name: fileName, path: filePath });
+    const previewDir = `${environment.supportPath}/.previews`;
+
+    if (!existsSync(previewDir)) {
+      mkdirSync(previewDir);
     }
-  })
+
+    const previewPath = await generateVideoPreview(filePath, `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`);
+  
+    cardArr.push({ name: fileName, path: filePath, preview: previewPath });
+  }
+
+  // items.forEach(async item => {
+  //   const filePath = `${dir}/${item}`;
+  //   const fileStats = lstatSync(filePath);
+  //   const fileExt = extname(filePath);
+  //   const fileName = basename(filePath, fileExt);
+  
+  //   if (fileStats.isDirectory()) return;
+  //   if (fileName.startsWith(".")) return;
+  
+  //   const videoExts = [".mov", ".mp4"];
+  
+  //   if (videoExts.includes(fileExt)) {
+  //     console.log(fileName)
+  //     const previewDir = `${environment.supportPath}/.previews`;
+  
+  //     if (!existsSync(previewDir)) {
+  //       mkdirSync(previewDir);
+  //     }
+  
+  //     const previewPath = await generateVideoPreview(
+  //       filePath,
+  //       `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`
+  //     );
+  
+  //     cardArr.push({ name: fileName, path: filePath, preview: previewPath });
+  //   } else {
+  //     cardArr.push({ name: fileName, path: filePath });
+  //   }
+  // })
 
   return cardArr;
 }
