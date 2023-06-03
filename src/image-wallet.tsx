@@ -81,13 +81,13 @@ export default function Command() {
     ];
   }
 
-  function loadPocketNodes(pocket: Pocket, ops?: { hideTitle?: boolean }) {
+  function loadPocketNodes(pocket: Pocket, config?: { hideTitle?: boolean }) {
     return (
-      <Grid.Section title={ops?.hideTitle ? undefined : pocket.name || undefined} key={pocket.name || "unsorted"}>
+      <Grid.Section title={config?.hideTitle ? undefined : pocket.name || undefined} key={pocket.name || "unsorted"}>
         {pocket.cards.map((card) => (
           <Grid.Item
             key={card.path}
-            content={card.path}
+            content={card.preview ?? card.path}
             title={card.name.replace(":", "/")}
             keywords={[card.name]}
             actions={loadCardActionNodes(card)}

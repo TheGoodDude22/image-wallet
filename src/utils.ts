@@ -2,7 +2,7 @@ import { environment, getPreferenceValues } from "@raycast/api";
 import { runJxa } from "run-jxa";
 
 import { basename, extname } from "path";
-import { lstatSync, readdirSync } from "fs";
+import { lstatSync, readdirSync, existsSync, mkdirSync } from "fs";
 
 import { Pocket, Card, Preferences } from "./types";
 
@@ -56,7 +56,13 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
 
     const videoExts = [".mov", ".mp4"]
     let previewPath: string | undefined = undefined
+    
     if (videoExts.includes(fileExt)) {
+      const previewDir = `${environment.supportPath}/.previews`
+
+      if (!existsSync(previewDir)){
+        mkdirSync(previewDir);
+    }
 
       const previewPathIn = await runJxa(`
         ObjC.import("objc");
@@ -112,15 +118,15 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
 
         return outputPath
         }`,
-        [filePath, `${environment.supportPath}/temp.tiff`]
+        [filePath, `${previewDir}/${dir.replaceAll("/", ":")}:${item}.tiff`]
       )
 
       previewPath = previewPathIn?.toString()
-      console.log(previewPathIn)
     }
 
     cardArr.push({ name: fileName, path: filePath, preview: previewPath });
+
   });
 
-  return cardArr;
+  return cardArr
 }
