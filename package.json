@@ -25,6 +25,13 @@
       "description": "Path to load Wallet from. Leave blank for default.",
       "type": "directory",
       "required": true
+    },
+    {
+      "name": "videoPreviews",
+      "label": "Generate Video Previews",
+      "description": "Whether or not video Cards generate and display preview images.",
+      "type": "checkbox",
+      "required": true
     }
   ],
   "dependencies": {
