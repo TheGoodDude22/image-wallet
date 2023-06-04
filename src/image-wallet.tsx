@@ -3,7 +3,7 @@ import { usePromise } from "@raycast/utils";
 
 import { useState, ReactNode } from "react";
 
-import { walletPath, fetchFiles } from "./utils";
+import { walletPath, fetchFiles, fetchPocketNames } from "./utils";
 import { Card, Pocket } from "./types";
 
 let info: Pocket[]
@@ -11,6 +11,7 @@ let info: Pocket[]
 export default function Command() {
   const [pocket, setPocket] = useState<string>();
   const { isLoading, data, revalidate } = usePromise(loadGridComponents, [pocket]);
+  const { isLoading: isDropdownLoading, data: dropdownData } = usePromise(loadDropdownComponents);
 
   return (
     <Grid
@@ -21,12 +22,13 @@ export default function Command() {
       searchBarAccessory={
         <Grid.Dropdown
           tooltip="Select Pocket"
-          storeValue
+          storeValue={true}
           onChange={(newValue) => setPocket(newValue)}
           defaultValue="All Cards"
           key="Dropdown"
+          isLoading={isDropdownLoading}
         >
-          {data?.dropdownNodes}
+          {dropdownData}
         </Grid.Dropdown>
       }
       actions={<ActionPanel>{loadGenericActionNodes()}</ActionPanel>}
@@ -67,6 +69,13 @@ export default function Command() {
     return { pocketNodes, dropdownNodes, cardCount };
   }
 
+  async function loadDropdownComponents() {
+    const pockets = fetchPocketNames(walletPath).map(item => {
+      return {name: item, cards: []}
+    })
+    return loadGridDropdownNodes(pockets)
+  }
+
   function loadGridDropdownNodes(pockets: Pocket[]) {
     return [
       <Grid.Dropdown.Item title="All Cards" value="" key="" />,
@@ -83,6 +92,7 @@ export default function Command() {
       </Grid.Dropdown.Section>,
     ];
   }
+
 
   function loadPocketNodes(pocket: Pocket, config?: { hideTitle?: boolean }) {
     return (

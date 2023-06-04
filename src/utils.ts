@@ -17,14 +17,8 @@ function getWalletPath() {
   return environment.supportPath;
 }
 
-export async function fetchFiles(dir: string): Promise<Pocket[]> {
-  const pocketArr: Pocket[] = [];
-  await loadPocketCards(dir).then((cards) => {
-    if (cards.length > 0) pocketArr.push({ cards: cards });
-  });
-
-  const items = readdirSync(walletPath);
-  await Promise.all(items.map(async (item) => {
+export function fetchPocketNames(dir: string): string[] {
+  return readdirSync(dir).filter(item => {
     const filePath = `${dir}/${item}`;
     const fileStats = lstatSync(filePath);
     const fileExt = extname(filePath);
@@ -33,9 +27,20 @@ export async function fetchFiles(dir: string): Promise<Pocket[]> {
     if (!fileStats.isDirectory()) return;
     if (fileName.startsWith(".")) return;
 
+    return item
+  })
+}
+
+export async function fetchFiles(dir: string): Promise<Pocket[]> {
+  const pocketArr: Pocket[] = [];
+  await loadPocketCards(dir).then((cards) => {
+    if (cards.length > 0) pocketArr.push({ cards: cards });
+  });
+
+  await Promise.all(fetchPocketNames(walletPath).map(async (item) => {
     const cards = await loadPocketCards(`${dir}/${item}`)
     pocketArr.push({ name: item, cards: cards });
-  }));
+  }))
   return pocketArr;
 }
 
@@ -53,10 +58,12 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
     if (fileName.startsWith(".")) return;
   
     const videoExts = [".mov", ".mp4"]
-    let previewPath: string | undefined = undefined 
+    let previewPath: string | undefined = undefined
+
     if (videoExts.includes(fileExt) && getPreferenceValues().videoPreviews) {
       const previewDir = `${environment.supportPath}/.previews`;
       if (!existsSync(previewDir)) { mkdirSync(previewDir); }
+
       const intendedPreviewPath = `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`
       previewPath = await generateVideoPreview(filePath, intendedPreviewPath);
     }
