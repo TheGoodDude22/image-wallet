@@ -55,11 +55,15 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
     if (fileStats.isDirectory()) return;
     if (fileName.startsWith(".")) return;
   
-    const previewDir = `${environment.supportPath}/.previews`;
+    const videoExts = [".mov", ".mp4"]
+    let previewPath: string | undefined = undefined 
+    if (videoExts.includes(fileExt)){
+      const previewDir = `${environment.supportPath}/.previews`;
+      if (!existsSync(previewDir)) { mkdirSync(previewDir); }
+      const intendedPreviewPath = `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`
+      previewPath = await generateVideoPreview(filePath, intendedPreviewPath);
+    }
   
-    if (!existsSync(previewDir)) { mkdirSync(previewDir); }
-    const intendedPreviewPath = `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`
-    const previewPath = await generateVideoPreview(filePath, intendedPreviewPath);
     cardArr.push({ name: fileName, path: filePath, preview: previewPath });
   }))
 
