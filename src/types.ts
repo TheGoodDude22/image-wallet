@@ -11,4 +11,5 @@ export type Card = {
 
 export interface Preferences {
   walletDirectory?: string;
+  videoPreviews?: boolean;
 }

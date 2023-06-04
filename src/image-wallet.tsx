@@ -6,6 +6,8 @@ import { useState, ReactNode } from "react";
 import { walletPath, fetchFiles } from "./utils";
 import { Card, Pocket } from "./types";
 
+let info: Pocket[]
+
 export default function Command() {
   const [pocket, setPocket] = useState<string>();
   const { isLoading, data, revalidate } = usePromise(loadGridComponents, [pocket]);
@@ -34,34 +36,35 @@ export default function Command() {
   );
 
   async function loadGridComponents(sortedPocket?: string) {
-    return fetchFiles(walletPath).then((pockets) => {
-      const dropdownNodes = loadGridDropdownNodes(pockets);
-      const pocketNodes: ReactNode[] = [];
-      let cardCount = 0;
+    info = await fetchFiles(walletPath)
+    const pockets = info
 
-      if (sortedPocket) {
-        pockets.forEach((pocket) => {
-          if (pocket.name == sortedPocket) {
-            pocketNodes.push(loadPocketNodes(pocket, { hideTitle: true }));
-            cardCount += pocket.cards.length;
-          }
-        });
-      } else {
-        pocketNodes.push(
-          <Grid.EmptyView
-            title="No Cards Found"
-            key="Empty View"
-            description="Use ⌘E to add images to the Wallet directory!"
-          />
-        );
-        pockets.forEach((pocket) => {
-          pocketNodes.push(loadPocketNodes(pocket));
+    const dropdownNodes = loadGridDropdownNodes(pockets);
+    const pocketNodes: ReactNode[] = [];
+    let cardCount = 0;
+
+    if (sortedPocket) {
+      pockets.forEach((pocket) => {
+        if (pocket.name == sortedPocket) {
+          pocketNodes.push(loadPocketNodes(pocket, { hideTitle: true }));
           cardCount += pocket.cards.length;
-        });
-      }
+        }
+      });
+    } else {
+      pocketNodes.push(
+        <Grid.EmptyView
+          title="No Cards Found"
+          key="Empty View"
+          description="Use ⌘E to add images to the Wallet directory!"
+        />
+      );
+      pockets.forEach((pocket) => {
+        pocketNodes.push(loadPocketNodes(pocket));
+        cardCount += pocket.cards.length;
+      });
+    }
 
-      return { pocketNodes, dropdownNodes, cardCount };
-    });
+    return { pocketNodes, dropdownNodes, cardCount };
   }
 
   function loadGridDropdownNodes(pockets: Pocket[]) {

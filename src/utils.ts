@@ -4,12 +4,12 @@ import { runJxa } from "run-jxa";
 import { basename, extname } from "path";
 import { lstatSync, readdirSync, existsSync, mkdirSync } from "fs";
 
-import { Pocket, Card, Preferences } from "./types";
+import { Pocket, Card } from "./types";
 
 export const walletPath = getWalletPath();
 
 function getWalletPath() {
-  const preferences = getPreferenceValues<Preferences>();
+  const preferences = getPreferenceValues();
   if (preferences.walletDirectory) {
     const definedDir = lstatSync(preferences.walletDirectory);
     if (definedDir.isDirectory()) return preferences.walletDirectory;
@@ -19,13 +19,11 @@ function getWalletPath() {
 
 export async function fetchFiles(dir: string): Promise<Pocket[]> {
   const pocketArr: Pocket[] = [];
-
   await loadPocketCards(dir).then((cards) => {
     if (cards.length > 0) pocketArr.push({ cards: cards });
   });
 
   const items = readdirSync(walletPath);
-
   await Promise.all(items.map(async (item) => {
     const filePath = `${dir}/${item}`;
     const fileStats = lstatSync(filePath);
@@ -45,7 +43,6 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
   const cardArr: Card[] = [];
 
   const items = readdirSync(dir);
-
   await Promise.all(items.map(async (item) => {
     const filePath = `${dir}/${item}`;
     const fileStats = lstatSync(filePath);
@@ -57,7 +54,7 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
   
     const videoExts = [".mov", ".mp4"]
     let previewPath: string | undefined = undefined 
-    if (videoExts.includes(fileExt)){
+    if (videoExts.includes(fileExt) && getPreferenceValues().videoPreviews) {
       const previewDir = `${environment.supportPath}/.previews`;
       if (!existsSync(previewDir)) { mkdirSync(previewDir); }
       const intendedPreviewPath = `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`
@@ -65,37 +62,7 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
     }
   
     cardArr.push({ name: fileName, path: filePath, preview: previewPath });
-  }))
-
-  // items.forEach(async item => {
-  //   const filePath = `${dir}/${item}`;
-  //   const fileStats = lstatSync(filePath);
-  //   const fileExt = extname(filePath);
-  //   const fileName = basename(filePath, fileExt);
-  
-  //   if (fileStats.isDirectory()) return;
-  //   if (fileName.startsWith(".")) return;
-  
-  //   const videoExts = [".mov", ".mp4"];
-  
-  //   if (videoExts.includes(fileExt)) {
-  //     console.log(fileName)
-  //     const previewDir = `${environment.supportPath}/.previews`;
-  
-  //     if (!existsSync(previewDir)) {
-  //       mkdirSync(previewDir);
-  //     }
-  
-  //     const previewPath = await generateVideoPreview(
-  //       filePath,
-  //       `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`
-  //     );
-  
-  //     cardArr.push({ name: fileName, path: filePath, preview: previewPath });
-  //   } else {
-  //     cardArr.push({ name: fileName, path: filePath });
-  //   }
-  // })
+  }));
 
   return cardArr;
 }
@@ -163,5 +130,3 @@ async function generateVideoPreview(inputPath: string, outputPath: string): Prom
 
   return previewPath;
 }
-
-
