@@ -4,12 +4,12 @@ import { runJxa } from "run-jxa";
 import { basename, extname } from "path";
 import { lstatSync, readdirSync, existsSync, mkdirSync } from "fs";
 
-import { Pocket, Card } from "./types";
+import { Pocket, Card, Preferences } from "./types";
 
 export const walletPath = getWalletPath();
 
 function getWalletPath() {
-  const preferences = getPreferenceValues();
+  const preferences = getPreferenceValues<Preferences>();
   if (preferences.walletDirectory) {
     const definedDir = lstatSync(preferences.walletDirectory);
     if (definedDir.isDirectory()) return preferences.walletDirectory;
@@ -60,7 +60,7 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
     const videoExts = [".mov", ".mp4"]
     let previewPath: string | undefined = undefined
 
-    if (videoExts.includes(fileExt) && getPreferenceValues().videoPreviews) {
+    if (videoExts.includes(fileExt) && getPreferenceValues<Preferences>().videoPreviews) {
       const previewDir = `${environment.supportPath}/.previews`;
       if (!existsSync(previewDir)) { mkdirSync(previewDir); }
 

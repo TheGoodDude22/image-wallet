@@ -1,10 +1,10 @@
-import { openExtensionPreferences, ActionPanel, Action, Grid, Icon } from "@raycast/api";
+import { openExtensionPreferences, ActionPanel, Action, Grid, Icon, getPreferenceValues } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 
 import { useState, ReactNode } from "react";
 
 import { walletPath, fetchFiles, fetchPocketNames } from "./utils";
-import { Card, Pocket } from "./types";
+import { Card, Pocket, Preferences } from "./types";
 
 let info: Pocket[]
 
@@ -22,7 +22,7 @@ export default function Command() {
       searchBarAccessory={
         <Grid.Dropdown
           tooltip="Select Pocket"
-          storeValue={true}
+          storeValue={getPreferenceValues<Preferences>().rememberPocketFilter}
           onChange={(newValue) => setPocket(newValue)}
           defaultValue="All Cards"
           key="Dropdown"
@@ -100,7 +100,7 @@ export default function Command() {
         {pocket.cards.map((card) => (
           <Grid.Item
             key={card.path}
-            content={card.preview ?? card.path}
+            content={ card.preview ?? card.path }
             title={card.name.replace(":", "/")}
             keywords={[card.name]}
             actions={loadCardActionNodes(card)}
