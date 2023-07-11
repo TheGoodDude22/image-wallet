@@ -1,9 +1,13 @@
-export type CardItem = {
-    name: string,
-    path: string,
-    folder?: string
-}
+export type Pocket = {
+  name?: string;
+  cards: Card[];
+};
 
-export interface CardForm {
-    name: string
+export type Card = {
+  name: string;
+  path: string;
+};
+
+export interface Preferences {
+  walletDirectory?: string;
 }
