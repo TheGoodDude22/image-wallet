@@ -80,7 +80,6 @@ export default function Command() {
 
   async function loadDropdownComponents() {
     const pocketNames = fetchPocketNames();
-    console.log(pocketNames);
 
     return [
       <Grid.Dropdown.Item title="All Cards" value="" key="" />,
