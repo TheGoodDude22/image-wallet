@@ -33,17 +33,17 @@ export function fetchPocketNames(): string[] {
 
 export async function fetchFiles(): Promise<Pocket[]> {
   const pocketArr: Pocket[] = [];
-  
-  const cards = await loadPocketCards(walletPath)
+
+  const cards = await loadPocketCards(walletPath);
   if (cards.length > 0) pocketArr.push({ cards: cards });
-  
+
   await Promise.all(
     fetchPocketNames().map(async (item) => {
       const cards = await loadPocketCards(`${walletPath}/${item}`);
       if (cards.length > 0) pocketArr.push({ name: item, cards: cards });
     })
   );
-  
+
   return pocketArr;
 }
 

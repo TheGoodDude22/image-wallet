@@ -46,7 +46,9 @@ export default function Command() {
   );
 
   async function loadGridComponents(sortedPocket?: string) {
-    if (!savedPockets) {savedPockets = await fetchFiles();}
+    if (!savedPockets) {
+      savedPockets = await fetchFiles();
+    }
     const pockets = savedPockets;
 
     const pocketNodes: ReactNode[] = [];
@@ -77,16 +79,15 @@ export default function Command() {
   }
 
   async function loadDropdownComponents() {
-    const pocketNames = fetchPocketNames()
-    console.log(pocketNames)
+    const pocketNames = fetchPocketNames();
+    console.log(pocketNames);
 
     return [
       <Grid.Dropdown.Item title="All Cards" value="" key="" />,
       <Grid.Dropdown.Section title="Pockets" key="Section">
-        {pocketNames
-          .map((name) => (
-            <Grid.Dropdown.Item title={name} value={name} key={name} />
-          ))}
+        {pocketNames.map((name) => (
+          <Grid.Dropdown.Item title={name} value={name} key={name} />
+        ))}
       </Grid.Dropdown.Section>,
     ];
   }
