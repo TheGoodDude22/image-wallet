@@ -51,14 +51,17 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
   await Promise.all(items.map(async (item) => {
     const filePath = `${dir}/${item}`;
     const fileStats = lstatSync(filePath);
-    const fileExt = extname(filePath);
+    const fileExt = extname(filePath).toLowerCase();
     const fileName = basename(filePath, fileExt);
   
     if (fileStats.isDirectory()) return;
     if (fileName.startsWith(".")) return;
   
+    const imageExts = [".png", ".jpg", "jpeg", ".bmp", ".dds", ".exr", ".gif", ".hdr", ".ico", ".jpe", ".pbm", ".pfm", ".pgm", ".pict", ".ppm", ".psd", ".sgi", ".svg", ".tga", ".tiff", ".webp", ".cr2", ".dng", ".heic", ".heif", ".jp2", ".nef", ".orf", ".raf", ".rw2"];
     const videoExts = [".mov", ".mp4"]
     let previewPath: string | undefined = undefined
+
+    console.log(fileExt)
 
     if (videoExts.includes(fileExt) && getPreferenceValues<Preferences>().videoPreviews) {
       const previewDir = `${environment.supportPath}/.previews`;
@@ -66,6 +69,8 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
 
       const intendedPreviewPath = `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`
       previewPath = await generateVideoPreview(filePath, intendedPreviewPath);
+    } else if (imageExts.includes(fileExt)) {
+      previewPath = filePath
     }
   
     cardArr.push({ name: fileName, path: filePath, preview: previewPath });

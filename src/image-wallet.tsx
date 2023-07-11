@@ -100,7 +100,7 @@ export default function Command() {
         {pocket.cards.map((card) => (
           <Grid.Item
             key={card.path}
-            content={ card.preview ?? card.path/*  ?? { fileIcon: card.path } */} // Can't use fileIcon as fallback?
+            content={ card.preview ?? { fileIcon: card.path } }
             title={card.name.replace(":", "/")}
             keywords={[card.name]}
             actions={loadCardActionNodes(card)}
