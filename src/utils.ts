@@ -50,8 +50,8 @@ export async function fetchFiles(): Promise<Pocket[]> {
 
 async function loadPocketCards(dir: string): Promise<Card[]> {
   const cardArr: Card[] = [];
-
   const items = readdirSync(dir);
+
   await Promise.all(
     items.map(async (item) => {
       const filePath = `${dir}/${item}`;
@@ -98,15 +98,10 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
       let previewPath: string | undefined = undefined;
 
       if (videoExts.includes(fileExt) && getPreferenceValues<Preferences>().videoPreviews) {
-        if (!existsSync(PREVIEW_DIR)) {
-          mkdirSync(PREVIEW_DIR);
-        }
-
+        if (!existsSync(PREVIEW_DIR)) mkdirSync(PREVIEW_DIR);
         previewPath = `${PREVIEW_DIR}/${dir.replaceAll("/", "-")}-${item}.tiff`;
 
-        if (!existsSync(previewPath)) {
-          await generateVideoPreview(filePath, previewPath);
-        }
+        if (!existsSync(previewPath)) await generateVideoPreview(filePath, previewPath);
       } else if (imageExts.includes(fileExt)) {
         previewPath = filePath;
       }

@@ -29,7 +29,7 @@
     {
       "name": "videoPreviews",
       "label": "Generate Video Previews",
-      "description": "Should video Cards generate and display preview images?\n\nCan slow down Wallet when adding videos for the first time.\nManually reset previews with ⌘⇧R.",
+      "description": "Should video Cards generate preview images?\n\nCan slow down Wallet when adding videos.\nManually reset previews with ⌘⇧R.",
       "type": "checkbox",
       "required": true,
       "default": true

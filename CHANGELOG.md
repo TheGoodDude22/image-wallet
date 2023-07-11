@@ -6,8 +6,8 @@
 - Added 'Remember Pocket Filter' option
 - Added Unsorted filter
 - Added file type previews to non-image Cards
-- Fixed unnecessary loading when switching Pockets
-- Fixed refreshing not updating Pocket filter dropdown
+- Fixed obsessive re-scanning when changing filter
+- Fixed Pockets not updating when refreshing
 
 ## [1.0] - 2023-04-25
 
