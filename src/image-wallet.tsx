@@ -6,7 +6,7 @@ import { useState, ReactNode } from "react";
 import { walletPath, fetchFiles, fetchPocketNames } from "./utils";
 import { Card, Pocket, Preferences } from "./types";
 
-let info: Pocket[];
+let savedPockets: Pocket[];
 
 export default function Command() {
   const [pocket, setPocket] = useState<string>();
@@ -46,10 +46,9 @@ export default function Command() {
   );
 
   async function loadGridComponents(sortedPocket?: string) {
-    info = await fetchFiles(walletPath);
-    const pockets = info;
+    if (!savedPockets) {savedPockets = await fetchFiles();}
+    const pockets = savedPockets;
 
-    const dropdownNodes = loadGridDropdownNodes(pockets);
     const pocketNodes: ReactNode[] = [];
     let cardCount = 0;
 
@@ -74,28 +73,19 @@ export default function Command() {
       });
     }
 
-    return { pocketNodes, dropdownNodes, cardCount };
+    return { pocketNodes, cardCount };
   }
 
   async function loadDropdownComponents() {
-    const pockets = fetchPocketNames(walletPath).map((item) => {
-      return { name: item, cards: [] };
-    });
-    return loadGridDropdownNodes(pockets);
-  }
+    const pocketNames = fetchPocketNames()
+    console.log(pocketNames)
 
-  function loadGridDropdownNodes(pockets: Pocket[]) {
     return [
       <Grid.Dropdown.Item title="All Cards" value="" key="" />,
       <Grid.Dropdown.Section title="Pockets" key="Section">
-        {pockets
-          .filter((pocket) => pocket.name)
-          .map((pocket) => (
-            <Grid.Dropdown.Item
-              title={pocket.name || "Unsorted"}
-              value={pocket.name || "Unsorted"}
-              key={pocket.name || "Unsorted"}
-            />
+        {pocketNames
+          .map((name) => (
+            <Grid.Dropdown.Item title={name} value={name} key={name} />
           ))}
       </Grid.Dropdown.Section>,
     ];
@@ -103,7 +93,7 @@ export default function Command() {
 
   function loadPocketNodes(pocket: Pocket, config?: { hideTitle?: boolean }) {
     return (
-      <Grid.Section title={config?.hideTitle ? undefined : pocket.name || undefined} key={pocket.name || "unsorted"}>
+      <Grid.Section title={config?.hideTitle ? undefined : pocket.name || undefined} key={pocket.name}>
         {pocket.cards.map((card) => (
           <Grid.Item
             key={card.path}

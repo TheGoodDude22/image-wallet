@@ -17,9 +17,9 @@ function getWalletPath() {
   return environment.supportPath;
 }
 
-export function fetchPocketNames(dir: string): string[] {
-  return readdirSync(dir).filter((item) => {
-    const filePath = `${dir}/${item}`;
+export function fetchPocketNames(): string[] {
+  return readdirSync(walletPath).filter((item) => {
+    const filePath = `${walletPath}/${item}`;
     const fileStats = lstatSync(filePath);
     const fileExt = extname(filePath);
     const fileName = basename(filePath, fileExt);
@@ -31,18 +31,19 @@ export function fetchPocketNames(dir: string): string[] {
   });
 }
 
-export async function fetchFiles(dir: string): Promise<Pocket[]> {
+export async function fetchFiles(): Promise<Pocket[]> {
   const pocketArr: Pocket[] = [];
-  await loadPocketCards(dir).then((cards) => {
-    if (cards.length > 0) pocketArr.push({ cards: cards });
-  });
-
+  
+  const cards = await loadPocketCards(walletPath)
+  if (cards.length > 0) pocketArr.push({ cards: cards });
+  
   await Promise.all(
-    fetchPocketNames(walletPath).map(async (item) => {
-      const cards = await loadPocketCards(`${dir}/${item}`);
-      pocketArr.push({ name: item, cards: cards });
+    fetchPocketNames().map(async (item) => {
+      const cards = await loadPocketCards(`${walletPath}/${item}`);
+      if (cards.length > 0) pocketArr.push({ name: item, cards: cards });
     })
   );
+  
   return pocketArr;
 }
 
