@@ -6,12 +6,20 @@ import { useState, ReactNode } from "react";
 import { walletPath, fetchFiles, fetchPocketNames } from "./utils";
 import { Card, Pocket, Preferences } from "./types";
 
-let info: Pocket[]
+let info: Pocket[];
 
 export default function Command() {
   const [pocket, setPocket] = useState<string>();
-  const { isLoading: isGridLoading, data: gridData, revalidate: revalidateGrid } = usePromise(loadGridComponents, [pocket]);
-  const { isLoading: isDropdownLoading, data: dropdownData, revalidate: revalidateDropdown } = usePromise(loadDropdownComponents);
+  const {
+    isLoading: isGridLoading,
+    data: gridData,
+    revalidate: revalidateGrid,
+  } = usePromise(loadGridComponents, [pocket]);
+  const {
+    isLoading: isDropdownLoading,
+    data: dropdownData,
+    revalidate: revalidateDropdown,
+  } = usePromise(loadDropdownComponents);
 
   return (
     <Grid
@@ -38,8 +46,8 @@ export default function Command() {
   );
 
   async function loadGridComponents(sortedPocket?: string) {
-    info = await fetchFiles(walletPath)
-    const pockets = info
+    info = await fetchFiles(walletPath);
+    const pockets = info;
 
     const dropdownNodes = loadGridDropdownNodes(pockets);
     const pocketNodes: ReactNode[] = [];
@@ -70,10 +78,10 @@ export default function Command() {
   }
 
   async function loadDropdownComponents() {
-    const pockets = fetchPocketNames(walletPath).map(item => {
-      return {name: item, cards: []}
-    })
-    return loadGridDropdownNodes(pockets)
+    const pockets = fetchPocketNames(walletPath).map((item) => {
+      return { name: item, cards: [] };
+    });
+    return loadGridDropdownNodes(pockets);
   }
 
   function loadGridDropdownNodes(pockets: Pocket[]) {
@@ -93,14 +101,13 @@ export default function Command() {
     ];
   }
 
-
   function loadPocketNodes(pocket: Pocket, config?: { hideTitle?: boolean }) {
     return (
       <Grid.Section title={config?.hideTitle ? undefined : pocket.name || undefined} key={pocket.name || "unsorted"}>
         {pocket.cards.map((card) => (
           <Grid.Item
             key={card.path}
-            content={ card.preview ?? { fileIcon: card.path } }
+            content={card.preview ?? { fileIcon: card.path }}
             title={card.name.replace(":", "/")}
             keywords={[card.name]}
             actions={loadCardActionNodes(card)}
@@ -132,7 +139,7 @@ export default function Command() {
           title="Reload Wallet"
           icon={Icon.ArrowClockwise}
           shortcut={{ modifiers: ["cmd"], key: "r" }}
-          onAction={ revalidate }
+          onAction={revalidate}
         />
         <Action
           title="Change Wallet Directory"

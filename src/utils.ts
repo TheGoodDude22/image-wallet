@@ -18,7 +18,7 @@ function getWalletPath() {
 }
 
 export function fetchPocketNames(dir: string): string[] {
-  return readdirSync(dir).filter(item => {
+  return readdirSync(dir).filter((item) => {
     const filePath = `${dir}/${item}`;
     const fileStats = lstatSync(filePath);
     const fileExt = extname(filePath);
@@ -27,8 +27,8 @@ export function fetchPocketNames(dir: string): string[] {
     if (!fileStats.isDirectory()) return;
     if (fileName.startsWith(".")) return;
 
-    return item
-  })
+    return item;
+  });
 }
 
 export async function fetchFiles(dir: string): Promise<Pocket[]> {
@@ -37,10 +37,12 @@ export async function fetchFiles(dir: string): Promise<Pocket[]> {
     if (cards.length > 0) pocketArr.push({ cards: cards });
   });
 
-  await Promise.all(fetchPocketNames(walletPath).map(async (item) => {
-    const cards = await loadPocketCards(`${dir}/${item}`)
-    pocketArr.push({ name: item, cards: cards });
-  }))
+  await Promise.all(
+    fetchPocketNames(walletPath).map(async (item) => {
+      const cards = await loadPocketCards(`${dir}/${item}`);
+      pocketArr.push({ name: item, cards: cards });
+    })
+  );
   return pocketArr;
 }
 
@@ -48,38 +50,73 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
   const cardArr: Card[] = [];
 
   const items = readdirSync(dir);
-  await Promise.all(items.map(async (item) => {
-    const filePath = `${dir}/${item}`;
-    const fileStats = lstatSync(filePath);
-    const fileExt = extname(filePath).toLowerCase();
-    const fileName = basename(filePath, fileExt);
-  
-    if (fileStats.isDirectory()) return;
-    if (fileName.startsWith(".")) return;
-  
-    const imageExts = [".png", ".jpg", "jpeg", ".bmp", ".dds", ".exr", ".gif", ".hdr", ".ico", ".jpe", ".pbm", ".pfm", ".pgm", ".pict", ".ppm", ".psd", ".sgi", ".svg", ".tga", ".tiff", ".webp", ".cr2", ".dng", ".heic", ".heif", ".jp2", ".nef", ".orf", ".raf", ".rw2"];
-    const videoExts = [".mov", ".mp4"]
-    let previewPath: string | undefined = undefined
+  await Promise.all(
+    items.map(async (item) => {
+      const filePath = `${dir}/${item}`;
+      const fileStats = lstatSync(filePath);
+      const fileExt = extname(filePath).toLowerCase();
+      const fileName = basename(filePath, fileExt);
 
-    if (videoExts.includes(fileExt) && getPreferenceValues<Preferences>().videoPreviews) {
-      const previewDir = `${environment.supportPath}/.previews`;
-      if (!existsSync(previewDir)) { mkdirSync(previewDir); }
+      if (fileStats.isDirectory()) return;
+      if (fileName.startsWith(".")) return;
 
-      const intendedPreviewPath = `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`
-      previewPath = await generateVideoPreview(filePath, intendedPreviewPath);
-    } else if (imageExts.includes(fileExt)) {
-      previewPath = filePath
-    }
-  
-    cardArr.push({ name: fileName, path: filePath, preview: previewPath });
-  }));
+      const imageExts = [
+        ".png",
+        ".jpg",
+        "jpeg",
+        ".bmp",
+        ".dds",
+        ".exr",
+        ".gif",
+        ".hdr",
+        ".ico",
+        ".jpe",
+        ".pbm",
+        ".pfm",
+        ".pgm",
+        ".pict",
+        ".ppm",
+        ".psd",
+        ".sgi",
+        ".svg",
+        ".tga",
+        ".tiff",
+        ".webp",
+        ".cr2",
+        ".dng",
+        ".heic",
+        ".heif",
+        ".jp2",
+        ".nef",
+        ".orf",
+        ".raf",
+        ".rw2",
+      ];
+      const videoExts = [".mov", ".mp4"];
+      let previewPath: string | undefined = undefined;
+
+      if (videoExts.includes(fileExt) && getPreferenceValues<Preferences>().videoPreviews) {
+        const previewDir = `${environment.supportPath}/.previews`;
+        if (!existsSync(previewDir)) {
+          mkdirSync(previewDir);
+        }
+
+        const intendedPreviewPath = `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`;
+        previewPath = await generateVideoPreview(filePath, intendedPreviewPath);
+      } else if (imageExts.includes(fileExt)) {
+        previewPath = filePath;
+      }
+
+      cardArr.push({ name: fileName, path: filePath, preview: previewPath });
+    })
+  );
 
   return cardArr;
 }
 
 async function generateVideoPreview(inputPath: string, outputPath: string): Promise<string | undefined> {
-  const previewPath = (
-    await runJxa(`
+  const previewPath = await runJxa(
+    `
       ObjC.import("objc");
       ObjC.import("CoreMedia");
       ObjC.import("Foundation");
@@ -133,9 +170,9 @@ async function generateVideoPreview(inputPath: string, outputPath: string): Prom
 
       return outputPath
       }
-      `, [inputPath, outputPath]
-    )
-  )
+      `,
+    [inputPath, outputPath]
+  );
 
   return previewPath?.toString();
 }
