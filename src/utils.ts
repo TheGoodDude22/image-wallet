@@ -2,12 +2,13 @@ import { environment, getPreferenceValues } from "@raycast/api";
 import { runJxa } from "run-jxa";
 
 import { basename, extname } from "path";
-import { existsSync, lstatSync, mkdirSync, readdirSync } from "fs";
+import { existsSync, lstatSync, mkdirSync, readdirSync, rmSync } from "fs";
 
 import { Pocket, Card, Preferences } from "./types";
 
-export const walletPath = getWalletPath();
+const PREVIEW_DIR = `${environment.supportPath}/.previews`;
 
+export const walletPath = getWalletPath();
 function getWalletPath() {
   const preferences = getPreferenceValues<Preferences>();
   if (preferences.walletDirectory) {
@@ -61,6 +62,7 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
       if (fileStats.isDirectory()) return;
       if (fileName.startsWith(".")) return;
 
+      const videoExts = [".mov", ".mp4"];
       const imageExts = [
         ".png",
         ".jpg",
@@ -93,17 +95,18 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
         ".raf",
         ".rw2",
       ];
-      const videoExts = [".mov", ".mp4"];
       let previewPath: string | undefined = undefined;
 
       if (videoExts.includes(fileExt) && getPreferenceValues<Preferences>().videoPreviews) {
-        const previewDir = `${environment.supportPath}/.previews`;
-        if (!existsSync(previewDir)) {
-          mkdirSync(previewDir);
+        if (!existsSync(PREVIEW_DIR)) {
+          mkdirSync(PREVIEW_DIR);
         }
 
-        const intendedPreviewPath = `${previewDir}/${dir.replaceAll("/", "-")}:${item}.tiff`;
-        previewPath = await generateVideoPreview(filePath, intendedPreviewPath);
+        previewPath = `${PREVIEW_DIR}/${dir.replaceAll("/", "-")}-${item}.tiff`;
+
+        if (!existsSync(previewPath)) {
+          await generateVideoPreview(filePath, previewPath);
+        }
       } else if (imageExts.includes(fileExt)) {
         previewPath = filePath;
       }
@@ -112,7 +115,11 @@ async function loadPocketCards(dir: string): Promise<Card[]> {
     })
   );
 
-  return cardArr;
+  return cardArr.sort();
+}
+
+export function purgePreviews() {
+  rmSync(PREVIEW_DIR, { recursive: true, force: true });
 }
 
 async function generateVideoPreview(inputPath: string, outputPath: string): Promise<string | undefined> {

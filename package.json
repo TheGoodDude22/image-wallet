@@ -29,16 +29,17 @@
     {
       "name": "videoPreviews",
       "label": "Generate Video Previews",
-      "description": "Should video Cards generate and display preview images? Can make the Wallet slower.",
+      "description": "Should video Cards generate and display preview images?\n\nCan slow down Wallet when adding videos for the first time.\nManually reset previews with ⌘⇧R.",
       "type": "checkbox",
-      "required": true
+      "required": true,
+      "default": true
     },
     {
       "name": "rememberPocketFilter",
       "label": "Remember Pocket Filter",
       "description": "Should the filtered Pocket be recalled when the Wallet is re-launched?",
       "type": "checkbox",
-      "required": false,
+      "required": true,
       "default": true
     }
   ],

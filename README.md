@@ -3,7 +3,7 @@
 ## Preferences
 
 - **Wallet Directory**: The root folder to load Cards and Pockets from.
-- **Generate Video Previews**: Whether the wallet generates a preview image for videos. Makes loading the Wallet slightly slower when a video is present.
+- **Generate Video Previews**: Whether the wallet generates a preview image for videos. Can slow down Wallet when adding videos for the first time.
 - **Remember Pocket Filter**: When re-opening the wallet, should the filtered Pocket be restored?
 
 ## Folder Structure
