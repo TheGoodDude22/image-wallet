@@ -10,15 +10,15 @@ let info: Pocket[]
 
 export default function Command() {
   const [pocket, setPocket] = useState<string>();
-  const { isLoading, data, revalidate } = usePromise(loadGridComponents, [pocket]);
-  const { isLoading: isDropdownLoading, data: dropdownData } = usePromise(loadDropdownComponents);
+  const { isLoading: isGridLoading, data: gridData, revalidate: revalidateGrid } = usePromise(loadGridComponents, [pocket]);
+  const { isLoading: isDropdownLoading, data: dropdownData, revalidate: revalidateDropdown } = usePromise(loadDropdownComponents);
 
   return (
     <Grid
       columns={5}
-      isLoading={isLoading}
+      isLoading={isGridLoading}
       inset={Grid.Inset.Large}
-      searchBarPlaceholder={`Search ${data?.cardCount || 0} Cards...`}
+      searchBarPlaceholder={`Search ${gridData?.cardCount || 0} Cards...`}
       searchBarAccessory={
         <Grid.Dropdown
           tooltip="Select Pocket"
@@ -33,7 +33,7 @@ export default function Command() {
       }
       actions={<ActionPanel>{loadGenericActionNodes()}</ActionPanel>}
     >
-      {data?.pocketNodes}
+      {gridData?.pocketNodes}
     </Grid>
   );
 
@@ -116,10 +116,7 @@ export default function Command() {
       <ActionPanel>
         <ActionPanel.Section>
           <Action.Paste content={{ file: item.path }} />
-          <Action.CopyToClipboard
-            content={{ file: item.path }}
-            shortcut={{ modifiers: ["cmd"], key: "c" }}
-          />
+          <Action.CopyToClipboard content={{ file: item.path }} />
           <Action.ToggleQuickLook shortcut={{ modifiers: ["cmd"], key: "y" }} />
         </ActionPanel.Section>
         {loadGenericActionNodes()}
@@ -135,7 +132,7 @@ export default function Command() {
           title="Reload Wallet"
           icon={Icon.ArrowClockwise}
           shortcut={{ modifiers: ["cmd"], key: "r" }}
-          onAction={revalidate}
+          onAction={ revalidate }
         />
         <Action
           title="Change Wallet Directory"
@@ -145,5 +142,10 @@ export default function Command() {
         />
       </ActionPanel.Section>
     );
+  }
+
+  function revalidate() {
+    revalidateGrid();
+    revalidateDropdown();
   }
 }
