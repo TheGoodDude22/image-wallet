@@ -1,4 +1,4 @@
-# Unage Wallet Changelog
+# Image Wallet Changelog
 
 ## [Video Previews] - 2023-07-11
 
