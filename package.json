@@ -16,6 +16,12 @@
       "title": "Image Wallet",
       "description": "Browse and view your saved images.",
       "mode": "view"
+    },
+    {
+      "name": "create-card",
+      "title": "Create Card",
+      "description": "Add an image to your Wallet",
+      "mode": "view"
     }
   ],
   "preferences": [

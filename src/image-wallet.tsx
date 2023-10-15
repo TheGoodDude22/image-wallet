@@ -1,10 +1,11 @@
-import { openExtensionPreferences, ActionPanel, Action, Grid, Icon, getPreferenceValues } from "@raycast/api";
+import { openExtensionPreferences, ActionPanel, Action, Grid, Icon, getPreferenceValues, environment, LaunchType } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 
 import { useState, ReactNode } from "react";
 
 import { walletPath, fetchFiles, fetchPocketNames, purgePreviews } from "./utils";
 import { Card, Pocket, Preferences } from "./types";
+import View from "./create-card-view"
 
 let savedPockets: Pocket[];
 
@@ -132,6 +133,12 @@ export default function Command() {
   function loadGenericActionNodes() {
     return (
       <ActionPanel.Section>
+        <Action.Push
+          title="Create Card"
+          icon={Icon.NewDocument}
+          shortcut={{ modifiers: ["cmd"], key: "n"}}
+          target={<View launchType={LaunchType.UserInitiated} arguments={undefined} />}
+        />
         <Action.ShowInFinder title="Edit Wallet" shortcut={{ modifiers: ["cmd"], key: "e" }} path={walletPath} />
         <Action
           title="Change Wallet Directory"
@@ -166,3 +173,4 @@ export default function Command() {
     revalidate();
   }
 }
+ 
