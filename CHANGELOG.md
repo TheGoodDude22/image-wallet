@@ -1,5 +1,11 @@
 # Image Wallet Changelog
 
+## [Unreleased]
+
+- Added 'Suppress Folder Read Errors' option
+- Fixed error when attempting to read a directory without permission
+- Fixed placeholder text in the search bar when having a single card
+
 ## [Video Previews] - 2023-07-11
 
 - Added 'Generate Video Previews' option
