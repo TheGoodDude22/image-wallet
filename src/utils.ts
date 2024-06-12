@@ -40,8 +40,6 @@ export function fetchPocketNames(): string[] {
 
       return;
     }
-
-    return item;
   });
 }
 
@@ -131,7 +129,6 @@ export function purgePreviews() {
 }
 
 async function generateVideoPreview(inputPath: string, outputPath: string): Promise<string | undefined> {
-  // console.log(inputPath)
   const previewPath = await runJxa(
     `
       ObjC.import("objc");
