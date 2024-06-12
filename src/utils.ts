@@ -40,6 +40,8 @@ export function fetchPocketNames(): string[] {
 
       return;
     }
+
+    return item;
   });
 }
 
