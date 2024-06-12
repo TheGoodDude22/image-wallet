@@ -1,6 +1,6 @@
 # Image Wallet Changelog
 
-## [Unreleased]
+## [Bug Fixes] - 2024-06-12
 
 - Added 'Suppress Folder Read Errors' option
 - Fixed error when attempting to read a directory without permission

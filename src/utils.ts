@@ -29,7 +29,7 @@ export function fetchPocketNames(): string[] {
     if (fileName.startsWith(".")) return;
 
     try {
-      readdirSync(filePath)
+      readdirSync(filePath);
     } catch (e) {
       if (getPreferenceValues<Preferences>().suppressFolderReadErrors) return;
       showToast({
@@ -37,7 +37,7 @@ export function fetchPocketNames(): string[] {
         title: `The "${fileName}" directory could not be read`,
         message: "Suppress this error in extension preferences.",
       });
-  
+
       return;
     }
 
